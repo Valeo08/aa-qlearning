@@ -26,6 +26,9 @@ public class QLearning {
 	// Number of states
 	private final int numStates;
 	
+	// Number of actions
+	private int numActions;
+	
 	// Rewards and penalty for states
 	private final int reward = 100;
 	private final int penalty = -10;
@@ -60,6 +63,7 @@ public class QLearning {
 		this.mapWidth = Integer.parseInt(size[0]);
 		this.mapHeight = Integer.parseInt(size[1]);
 		this.numStates = this.mapWidth * this.mapHeight;
+		this.numActions = 4;
 		
 		this.map = new int[mapHeight][mapWidth];
 		for (int i = 0; i < mapHeight; i++)
@@ -86,8 +90,8 @@ public class QLearning {
 	
 	// Initialize Reward and Q tables
 	public void init() {
-		R = new int[numStates][numStates];
-		Q = new double[numStates][numStates];
+		R = new int[numStates][numActions];
+		Q = new double[numStates][numActions];
 		
 		// Navigating through the Reward table
 		for (int i = 0; i < numStates; i++) {
@@ -96,16 +100,16 @@ public class QLearning {
 			int x = i - y * mapWidth;
 			
 			// Fill in the reward table with -1
-			for (int j = 0; j < numStates; j++)
+			for (int j = 0; j < numActions; j++)
 				R[i][j] = -1;
 			
-			// If it's not a final tile or a wall try all the movements
+			// If it's not a wall try all the movements
 			if (map[y][x] != 1) {
 				
 				// Try go left
 				int left = x - 1;
 				if (left >= 0) {
-					int target = y * mapWidth + left;
+					int target = 0;
 					if (map[y][left] == 0) R[i][target] = 0;
 					else if (map[y][left] == 2) R[i][target] = reward;
 					else R[i][target] = penalty;
@@ -114,7 +118,7 @@ public class QLearning {
 				// Try go right
 				int right = x + 1;
 				if (right >= 0) {
-					int target = y * mapWidth + right;
+					int target = 1;
 					if (map[y][right] == 0) R[i][target] = 0;
 					else if (map[y][right] == 2) R[i][target] = reward;
 					else R[i][target] = penalty;
@@ -123,7 +127,7 @@ public class QLearning {
 				// Try go up
 				int up = y - 1;
 				if (up >= 0) {
-					int target = up * mapWidth + x;
+					int target = 2;
 					if (map[up][x] == 0) R[i][target] = 0;
 					else if (map[up][x] == 2) R[i][target] = reward;
 					else R[i][target] = penalty;
@@ -132,9 +136,9 @@ public class QLearning {
 				// Try go down
 				int down = y + 1;
 				if (down >= 0) {
-					int target = up * mapWidth + x;
-					if (map[up][x] == 0) R[i][target] = 0;
-					else if (map[up][x] == 2) R[i][target] = reward;
+					int target = 3;
+					if (map[down][x] == 0) R[i][target] = 0;
+					else if (map[down][x] == 2) R[i][target] = reward;
 					else R[i][target] = penalty;
 				}
 				
@@ -149,23 +153,22 @@ public class QLearning {
 	private void initializeQ() {
 		// Sets Q values to R values
 		for (int i = 0; i < numStates; i++){
-            for(int j = 0; j < numStates; j++){
+            for(int j = 0; j < numActions; j++){
                 Q[i][j] = (double)R[i][j];
             }
         }
 	}
 	
 	// For DEBUG purposes - prints the reward table
-	@SuppressWarnings("unused")
-	private void printR() {
+	public void printR() {
 		System.out.printf("%25s", "States: ");
-        for (int i = 0; i <= 8; i++)
+        for (int i = 0; i <= 3; i++)
             System.out.printf("%4s", i);
         System.out.println();
 
         for (int i = 0; i < numStates; i++) {
             System.out.print("Possible states from " + i + " :[");
-            for (int j = 0; j < numStates; j++)
+            for (int j = 0; j < numActions; j++)
             	System.out.printf("%4s", R[i][j]);
             System.out.println("]");
         }
@@ -190,16 +193,17 @@ public class QLearning {
 				}
 				int index = random.nextInt(actionsFromCurrentState.length);
 				int nextState = actionsFromCurrentState[index];
+				int nextStateIndex = getNextStateFromAction(nextState, currentState);
 				
 				// Calculate the Q value to transition from current to next state
 				double q = Q[currentState][nextState];
-				double qmax = maxQValue(nextState);
+				double qmax = maxQValue(nextStateIndex);
 				int r = R[currentState][nextState];
 				
 				double value = q + alpha * (r + gamma * qmax - q);
 				Q[currentState][nextState] = value;
 				
-				currentState = nextState;
+				currentState = nextStateIndex;
 			}
 		}
 	}
@@ -214,7 +218,7 @@ public class QLearning {
 	// Gets a list of possible actions to do from a state
 	private int[] possibleActionsFromState (int state) {
         ArrayList<Integer> result = new ArrayList<>();
-        for (int i = 0; i < numStates; i++)
+        for (int i = 0; i < numActions; i++)
             if (R[state][i] != -1) result.add(i);
 
         return result.stream().mapToInt(i -> i).toArray();
@@ -238,8 +242,8 @@ public class QLearning {
 	public void printPolicy() {
         System.out.println("\nPrint policy");
         for (int i = 0; i < numStates; i++)
-            System.out.println("From state " 
-            		+ i + " goto state " + getPolicyFromState(i));
+            System.out.println("At state " 
+            		+ i + " do action " + getPolicyFromState(i));
     }
 	
 	// Get what to do from a given state
@@ -247,19 +251,20 @@ public class QLearning {
         int[] actionsFromState = possibleActionsFromState(state);
 
         double maxValue = Double.MIN_VALUE;
-        int policyGotoState = state;
+        int policyAction = -1;
 
         // Pick to move to the state that has the maximum Q value
+        // returns the action that makes it possible
         for (int nextState : actionsFromState) {
             double value = Q[state][nextState];
 
             if (value > maxValue) {
                 maxValue = value;
-                policyGotoState = nextState;
+                policyAction = nextState;
             }
         }
         
-        return policyGotoState;
+        return policyAction;
     }
 
 	// Prints the Q-table
@@ -307,6 +312,30 @@ public class QLearning {
 		int x = (int) posx;
 		int y = (int) posy;
 		return (y * mapWidth + x);
+	}
+	
+	// Get next state from making an action in a state
+	public int getNextStateFromAction(final int action, final int currentState) {
+		Vector2d pos = getTilesPositionFromState(currentState);
+		int nextState = currentState;
+		
+		switch (action) {
+		case 0: // left
+			pos.x -= 1;
+			break;
+		case 1: // right
+			pos.x += 1;
+			break;
+		case 2: // up
+			pos.y -= 1;
+			break;
+		case 3: // down
+			pos.y += 1;
+			break;
+		}
+		
+		nextState = getStateFromPosition(pos.x, pos.y);
+		return nextState;
 	}
 	
 	// Get tiles position from state

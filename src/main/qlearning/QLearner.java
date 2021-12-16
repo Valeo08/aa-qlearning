@@ -14,8 +14,9 @@ import tools.Vector2d;
 
 public class QLearner extends AbstractPlayer {
 	
-	private final String map = "map-camel0.dat";
-	private final String table = "q-table.dat";
+	private final int levelIdx = 1;
+	private final String map = "map-camel" + levelIdx + ".dat";
+	private final String table = "q-table-camel" + levelIdx + ".dat";
 	
 	private QLearning learn;
 
@@ -23,7 +24,7 @@ public class QLearner extends AbstractPlayer {
 		// IT IS BORN
 		try {
 			// For generating the map representation file
-			// generateMapFile(map, so);
+			//generateMapFile(map, so);
 			
 			// For behavior
 			learn = new QLearning(map);
@@ -44,18 +45,27 @@ public class QLearner extends AbstractPlayer {
 		Vector2d plyPos = so.getAvatarPosition();
 		int currentState = learn.getStateFromPosition(plyPos.x / so.getBlockSize(),
 				plyPos.y / so.getBlockSize());
-		int nextState = learn.getPolicyFromState(currentState);
-		Vector2d nextPosTiles = learn.getTilesPositionFromState(nextState);
-		Vector2d nextPos = new Vector2d(nextPosTiles.x * so.getBlockSize(),
-				nextPosTiles.y * so.getBlockSize());
+		int actionIndex = learn.getPolicyFromState(currentState);
 		
-		System.out.print("State: " + currentState + " -> " + nextState 
-				+ " | Position: " + plyPos + " -> "  + nextPos + "\n");
+		System.out.print("State: " + currentState + " -> Action " + actionIndex + "\n");
 		
-		if (nextPos.x > plyPos.x) action = ACTIONS.ACTION_RIGHT;
-		else if (nextPos.x < plyPos.x) action = ACTIONS.ACTION_LEFT;
-		else if (nextPos.y > plyPos.y) action = ACTIONS.ACTION_DOWN;
-		else if (nextPos.y < plyPos.y) action = ACTIONS.ACTION_UP;
+		switch (actionIndex) {
+		case 0:
+			action = ACTIONS.ACTION_LEFT;
+			break;
+		case 1:
+			action = ACTIONS.ACTION_RIGHT;
+			break;
+		case 2:
+			action = ACTIONS.ACTION_UP;
+			break;
+		case 3:
+			action = ACTIONS.ACTION_DOWN;
+			break;
+		default:
+			action = ACTIONS.ACTION_NIL;
+			break;
+		}
 		
 		System.out.println("Action selected: " + action);
 		
@@ -81,16 +91,16 @@ public class QLearner extends AbstractPlayer {
 		// Walls
 		sb.append("W#");
 		for (Observation ob : so.getImmovablePositions()[0])
-			sb.append(ob.position.x / so.getBlockSize()).append(",")
-				.append(ob.position.y / so.getBlockSize()).append(";");
+			sb.append((int)ob.position.x / so.getBlockSize()).append(",")
+				.append((int)ob.position.y / so.getBlockSize()).append(";");
 		sb.deleteCharAt(sb.length() - 1);
 		sb.append("\n");
 		
 		// Goals - Portals - Final tiles
 		sb.append("F#");
 		for (Observation ob : so.getPortalsPositions()[0])
-			sb.append(ob.position.x / so.getBlockSize()).append(",")
-				.append(ob.position.y / so.getBlockSize()).append(";");
+			sb.append((int)ob.position.x / so.getBlockSize()).append(",")
+				.append((int)ob.position.y / so.getBlockSize()).append(";");
 		sb.deleteCharAt(sb.length() - 1);
 		
 		bw.write(sb.toString());

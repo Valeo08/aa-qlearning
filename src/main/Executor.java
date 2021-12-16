@@ -1,17 +1,41 @@
 package main;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 
+import main.qlearning.QLearning;
 import tools.Utils;
 import tracks.ArcadeMachine;
 
 public class Executor {
 
 	public static void main(String[] args) {
+		// GVGAI Execution things
+		String p0 = "main.qlearning.QLearner";
+		
+		//Load available games
+		String spGamesCollection = "examples/all_games_sp.csv";
+		String[][] games = Utils.readGames(spGamesCollection);
+
+		//Game settings
+		boolean visuals = true;
+		int seed = new Random().nextInt();
+				
+		// Game and level to play
+		int gameIdx  = 15;
+		int levelIdx = 1; // level names from 0 to 4 (game_lvlN.txt).
+		
+		String gameName = games[gameIdx][1];
+		String game = games[gameIdx][0];
+		String level1 = game.replace(gameName, gameName + "_lvl" + levelIdx);
+
+		
 		// Q-Learning things - For generating the Q-table
-		/*
-		String map = "map-camel0.dat";
-		String table = "q-table.dat";
+		String map = "map-camel" + levelIdx + ".dat";
+		String table = "q-table-camel" + levelIdx + ".dat";
 		QLearning learn;
 		
 		try {
@@ -30,33 +54,8 @@ public class Executor {
 		} catch (IOException ex) {
 			System.err.println(ex.getMessage());
 		}
-		*/
-		
-		
-		// GVGAI Execution things
-		String p0 = "main.qlearning.QLearner";
-		
-		//Load available games
-		String spGamesCollection = "examples/all_games_sp.csv";
-		String[][] games = Utils.readGames(spGamesCollection);
 
-		//Game settings
-		boolean visuals = true;
-		int seed = new Random().nextInt();
-				
-		// Game and level to play
-		int gameIdx  = 15;
-		int levelIdx = 0; // level names from 0 to 4 (game_lvlN.txt).
-		
-		String gameName = games[gameIdx][1];
-		String game = games[gameIdx][0];
-		String level1 = game.replace(gameName, gameName + "_lvl" + levelIdx);
-
-		
-		// 1. This starts a game, in a level, played by a human.
-		//ArcadeMachine.playOneGame(game, level1, null, seed);
-
-		// 2. This plays a game in a level by the controller.
+		// Runs the game
 		ArcadeMachine.runOneGame(game, level1, visuals, p0, null, seed, 0);
 				
 		//System.exit(0);
