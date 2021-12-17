@@ -14,7 +14,7 @@ import tools.Vector2d;
 
 public class QLearner extends AbstractPlayer {
 	
-	private final int levelIdx = 1;
+	private final int levelIdx = 0;
 	private final String map = "map-camel" + levelIdx + ".dat";
 	private final String table = "q-table-camel" + levelIdx + ".dat";
 	
