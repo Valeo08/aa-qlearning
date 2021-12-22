@@ -1,9 +1,5 @@
 package main;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Random;
 
 import main.qlearning.QLearning;
@@ -14,51 +10,56 @@ public class Executor {
 
 	public static void main(String[] args) {
 		// GVGAI Execution things
-		String p0 = "main.qlearning.QLearner";
+		String pTrain = "main.agents.TrainerAgent";
+		String pTest = "main.agents.TestAgent";
 		
 		//Load available games
 		String spGamesCollection = "examples/all_games_sp.csv";
 		String[][] games = Utils.readGames(spGamesCollection);
 
 		//Game settings
-		boolean visuals = true;
 		int seed = new Random().nextInt();
 				
 		// Game and level to play
 		int gameIdx  = 15;
-		int levelIdx = 0; // level names from 0 to 4 (game_lvlN.txt).
+		// int levelIdx = 3; // level names from 0 to 4 (game_lvlN.txt).
 		
 		String gameName = games[gameIdx][1];
 		String game = games[gameIdx][0];
-		String level1 = game.replace(gameName, gameName + "_lvl" + levelIdx);
+		//String level1 = game.replace(gameName, gameName + "_lvl" + levelIdx);
 
+		// Q-Learning things
+		// Runs the game multiple iterations for learning
 		
-		// Q-Learning things - For generating the Q-table
-		String map = "map-camel" + levelIdx + ".dat";
-		String table = "q-table-camel" + levelIdx + ".dat";
-		QLearning learn;
+		int numIterations = 2000;
+		int numLevels = 4;
+		Random random;
 		
-		try {
-			learn = new QLearning(map);
+		QLearning.NUM_ITERATIONS = numIterations;
+		
+		boolean TRAINING = true;
+		
+		if (TRAINING) {
+			for (int i = 0; i <= numLevels; i++) {
+				QLearning.ACTUAL_ITERATION = 0;
+				for (int j = 0; j < numIterations; j++) {
+					random = new Random(System.nanoTime());
+					int levelIndex = random.nextInt(i + 1);
+					System.out.println("Running iteration " 
+							+ (QLearning.ACTUAL_ITERATION + 1) + " on Level " + levelIndex);
+					String level = game.replace(gameName, gameName + "_lvl" + levelIndex);
+					ArcadeMachine.runOneGame(game, level, false, pTrain, null, seed, 0);
+					QLearning.ACTUAL_ITERATION++;
+				}	
+			}
+		} else {
+			String levelTest = game.replace(gameName, gameName + "_test");
+			//String levelTest = "./examples/gridphysics/camelRace_lvl0.txt";
 			
-			// To generate the Q-table for the map
-			learn.init();
-			learn.calculateQ();
-			
-			// Save Q-table to file
-			File f = new File(table);
-			if (f.exists()) f.delete();
-			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-			bw.write(learn.printQ());
-			bw.close();
-		} catch (IOException ex) {
-			System.err.println(ex.getMessage());
+			ArcadeMachine.runOneGame(game, levelTest, true, pTest, null, seed, 0);
 		}
-
-		// Runs the game
-		ArcadeMachine.runOneGame(game, level1, visuals, p0, null, seed, 0);
-				
-		//System.exit(0);
+		
+		System.exit(0);
     }
 	
 }
