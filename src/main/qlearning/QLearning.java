@@ -21,13 +21,13 @@ public class QLearning implements Serializable {
 	
 	// File name of Q-table data and generated policy of it
 	public final static String QTABLE_FILENAME = "qtable-camel.dat";
-	public final static String QPOLICY_FILENAME = "qpolicy.dat";
+	public final static String QPOLICY_FILENAME = "qpolicy-camel.dat";
 	
 	public static double NUM_ITERATIONS;
 	public static double ACTUAL_ITERATION;
 	
 	// Learning and eagerness default rates
-	public static final double DEFAULT_ALPHA = 0.1;
+	public static final double DEFAULT_ALPHA = 0.5;
 	public static final double DEFAULT_GAMMA = 0.9;
 	
 	// Learning rate
@@ -36,6 +36,7 @@ public class QLearning implements Serializable {
 	private final double gamma;
 	
 	// Q table
+	public HashMap<State, Integer> frequency;
 	private final ArrayList<ACTIONS> actions;
 	private HashMap<State, HashMap<ACTIONS, Double>> qtable;
 	
@@ -49,6 +50,10 @@ public class QLearning implements Serializable {
 		this.alpha = alpha;
 		this.gamma = gamma;
 		
+		this.frequency = new HashMap<>();
+		for (int i = 0; i < States.NUM_STATES; i++)
+			this.frequency.put(States.getStateFromIndex(i), 0);
+		
 		this.actions = so.getAvailableActions(false);
 		
 		qtable = new HashMap<>();  
@@ -61,7 +66,7 @@ public class QLearning implements Serializable {
 			qtable.put(States.getStateFromIndex(i), new HashMap<>());
 			for (ACTIONS action : so.getAvailableActions(false))
 				qtable.get(States.getStateFromIndex(i))
-					.put(action, r.nextDouble() * 100);
+					.put(action, r.nextDouble());
 		}
 		
 		for (ACTIONS action : so.getAvailableActions(false))
@@ -73,7 +78,11 @@ public class QLearning implements Serializable {
 		Random random = new Random(System.nanoTime());
 
 		State currentState = States.checkState(so);
-		int actionIndex = random.nextInt(actions.size());
+		
+		int prevFreq = this.frequency.get(currentState);
+		this.frequency.replace(currentState, prevFreq + 1);
+		
+		if (ACTUAL_ITERATION == 999) System.out.println(qtable.toString());
 		
 		if (prevState != null && prevAction != null) {
 			double qa = qtable.get(prevState).get(prevAction);
@@ -84,13 +93,15 @@ public class QLearning implements Serializable {
 			qtable.get(prevState).replace(prevAction, q);
 		}
 		
+		int randomAction = random.nextInt(actions.size());
 		double epsilon = (NUM_ITERATIONS - ACTUAL_ITERATION) / NUM_ITERATIONS;
 		double prob = random.nextDouble();
 		double greedy = (1.0 - epsilon);
 		
 		ACTIONS action;
 		if (greedy > prob) action = getBestAction(currentState);
-		else action = this.actions.get(actionIndex);			
+		else action = this.actions.get(randomAction);
+		
 		return action;
 	}
 	

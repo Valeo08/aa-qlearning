@@ -14,11 +14,10 @@ public class Reward {
 		double maxLimit = (width * width) + (height * height);
 		
 		double reward = 
-				  1.0 * genericReward(so)
 				+ 1.0 * getGameScore(so)
 				+ 1.0 * getGameOverScore(so)
-				+ 10.0 * (1.0 / (getMeanPortalSquareDistance(so) / so.getBlockSize()))
-				+ 0.5 * (1.0 - getMeanImmovableSquareDistance(so) / maxLimit);
+				+ 2.0 * (1.0 - (getMeanPortalSquareDistance(so) / maxLimit))
+				+ 1.0 * (getMeanImmovableSquareDistance(so) / maxLimit);
 		
 		return reward;
 	}
@@ -50,20 +49,6 @@ public class Reward {
 		return getMeanObservationSquareDistance(portalPos);
 	}
 	
-	private static double genericReward(StateObservation so) {
-		if (so.isGameOver()) {
-			WINNER winner = so.getGameWinner();
-			switch (winner) {
-			case PLAYER_WINS:
-				return 10000;
-			case PLAYER_LOSES:
-				return -10000;
-			default:
-				return 0;
-			}
-		} else return so.getGameScore();
-	}
-	
 	private static double getGameScore(StateObservation so) {
 		return so.getGameScore();
 	}
@@ -74,7 +59,7 @@ public class Reward {
 		
 		switch (gameWinner) {
 		case PLAYER_WINS:
-			gameWinnerScore = 10;
+			gameWinnerScore = 1000;
 			break;
 		case NO_WINNER:
 			gameWinnerScore = 0;

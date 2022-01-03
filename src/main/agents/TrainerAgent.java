@@ -40,10 +40,16 @@ public class TrainerAgent extends AbstractPlayer {
 	
 	@Override
 	public void result(StateObservation so, ElapsedCpuTimer et) {
+		// Learn about last action before game over
+		learn.calculateQ(so, prevState, prevAction);
+		
+		// Save q-table for next iteration
 		QLearning.saveQTable(learn);
 		
+		// Update the policy with the new knowledge
 		if (QLearning.ACTUAL_ITERATION == QLearning.NUM_ITERATIONS - 1) {
 			learn.printQ();
+			System.out.println(learn.frequency.toString());
 			learn.savePolicy();
 		}
 	}

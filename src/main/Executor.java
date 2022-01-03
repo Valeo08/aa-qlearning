@@ -3,6 +3,7 @@ package main;
 import java.util.Random;
 
 import main.qlearning.QLearning;
+import main.qlearning.States;
 import tools.Utils;
 import tracks.ArcadeMachine;
 
@@ -10,6 +11,8 @@ public class Executor {
 
 	public static void main(String[] args) {
 		// GVGAI Execution things
+		
+		// Agents
 		String pTrain = "main.agents.TrainerAgent";
 		String pTest = "main.agents.TestAgent";
 		
@@ -22,25 +25,22 @@ public class Executor {
 				
 		// Game and level to play
 		int gameIdx  = 15;
-		// int levelIdx = 3; // level names from 0 to 4 (game_lvlN.txt).
-		
 		String gameName = games[gameIdx][1];
 		String game = games[gameIdx][0];
-		//String level1 = game.replace(gameName, gameName + "_lvl" + levelIdx);
 
 		// Q-Learning things
 		// Runs the game multiple iterations for learning
-		
-		int numIterations = 2000;
-		int numLevels = 4;
+		int numIterations = 500;
+		int numLevels = 10;
 		Random random;
 		
 		QLearning.NUM_ITERATIONS = numIterations;
+		States.init();
 		
-		boolean TRAINING = true;
+		boolean TRAINING = false;
 		
 		if (TRAINING) {
-			for (int i = 0; i <= numLevels; i++) {
+			for (int i = 0; i < numLevels; i++) {
 				QLearning.ACTUAL_ITERATION = 0;
 				for (int j = 0; j < numIterations; j++) {
 					random = new Random(System.nanoTime());
@@ -53,9 +53,7 @@ public class Executor {
 				}	
 			}
 		} else {
-			String levelTest = game.replace(gameName, gameName + "_test");
-			//String levelTest = "./examples/gridphysics/camelRace_lvl0.txt";
-			
+			String levelTest = game.replace(gameName, gameName + "_test1");
 			ArcadeMachine.runOneGame(game, levelTest, true, pTest, null, seed, 0);
 		}
 		

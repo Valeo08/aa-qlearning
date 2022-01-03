@@ -17,13 +17,12 @@ public class TestAgent extends AbstractPlayer {
 	public TestAgent(StateObservation so, ElapsedCpuTimer et) {
 		// IT IS BORN
 		policy = QLearning.loadPolicy();
+		System.out.println(policy.toString());
 	}
 	
 	@Override
 	public ACTIONS act(StateObservation so, ElapsedCpuTimer et) {
 		State currentState = States.checkState(so);
-		
-		System.out.println(policy.toString());
 		System.out.println(currentState);
 		
 		return policy.get(currentState);
