@@ -13,8 +13,7 @@ public class Reward {
 		int height = so.getWorldDimension().height;
 		double maxLimit = (width * width) + (height * height);
 		
-		double reward = 
-				+ 1.0 * getGameScore(so)
+		double reward =
 				+ 1.0 * getGameOverScore(so)
 				+ 2.0 * (1.0 - (getMeanPortalSquareDistance(so) / maxLimit))
 				+ 1.0 * (getMeanImmovableSquareDistance(so) / maxLimit);
@@ -47,10 +46,6 @@ public class Reward {
 	private static double getMeanPortalSquareDistance(StateObservation so) {
 		ArrayList<Observation>[] portalPos =  so.getPortalsPositions(so.getAvatarPosition());
 		return getMeanObservationSquareDistance(portalPos);
-	}
-	
-	private static double getGameScore(StateObservation so) {
-		return so.getGameScore();
 	}
 	
 	private static double getGameOverScore(StateObservation so) {

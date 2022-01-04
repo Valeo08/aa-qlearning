@@ -27,7 +27,7 @@ public class QLearning implements Serializable {
 	public static double ACTUAL_ITERATION;
 	
 	// Learning and eagerness default rates
-	public static final double DEFAULT_ALPHA = 0.5;
+	public static final double DEFAULT_ALPHA = 0.1;
 	public static final double DEFAULT_GAMMA = 0.9;
 	
 	// Learning rate

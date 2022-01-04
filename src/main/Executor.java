@@ -1,5 +1,9 @@
 package main;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 
 import main.qlearning.QLearning;
@@ -30,9 +34,8 @@ public class Executor {
 
 		// Q-Learning things
 		// Runs the game multiple iterations for learning
-		int numIterations = 500;
-		int numLevels = 10;
-		Random random;
+		int numIterations = 600;
+		int numLevels = 5;
 		
 		QLearning.NUM_ITERATIONS = numIterations;
 		States.init();
@@ -42,15 +45,31 @@ public class Executor {
 		if (TRAINING) {
 			for (int i = 0; i < numLevels; i++) {
 				QLearning.ACTUAL_ITERATION = 0;
-				for (int j = 0; j < numIterations; j++) {
-					random = new Random(System.nanoTime());
-					int levelIndex = random.nextInt(i + 1);
-					System.out.println("Running iteration " 
-							+ (QLearning.ACTUAL_ITERATION + 1) + " on Level " + levelIndex);
-					String level = game.replace(gameName, gameName + "_lvl" + levelIndex);
-					ArcadeMachine.runOneGame(game, level, false, pTrain, null, seed, 0);
-					QLearning.ACTUAL_ITERATION++;
-				}	
+				
+				int levelIndex = i;
+				String level = game.replace(gameName, gameName + "_lvl" + levelIndex);
+				
+				try {
+					File f = new File("results/" + gameName + i + ".csv");
+					if (f.exists()) f.delete();
+					
+					BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+					bw.append("Iteration,Timesteps\n");
+					
+					for (int j = 0; j < numIterations; j++) {
+						System.out.println("Running iteration " 
+								+ (QLearning.ACTUAL_ITERATION + 1) + " on Level " + levelIndex);
+						
+						double[] results = ArcadeMachine.runOneGame(game, level, false, pTrain, null, seed, 0);
+						bw.append("" + (j+1)).append("," + results[2]).append("\n");
+						
+						QLearning.ACTUAL_ITERATION++;
+					}
+					
+					bw.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		} else {
 			String levelTest = game.replace(gameName, gameName + "_test1");

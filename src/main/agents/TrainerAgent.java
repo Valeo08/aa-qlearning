@@ -21,7 +21,6 @@ public class TrainerAgent extends AbstractPlayer {
 		File f = new File(QLearning.QTABLE_FILENAME);
 		if (f.exists()) learn = QLearning.loadQTable();
 		else learn = new QLearning(so);
-		
 	}
 	
 	@Override
