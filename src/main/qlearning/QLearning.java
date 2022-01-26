@@ -20,8 +20,8 @@ public class QLearning implements Serializable {
 	private static final long serialVersionUID = 8903450369057477365L;
 	
 	// File name of Q-table data and generated policy of it
-	public final static String QTABLE_FILENAME = "qtable-camel.dat";
-	public final static String QPOLICY_FILENAME = "qpolicy-camel.dat";
+	public final static String QTABLE_FILENAME = "qtable-george.dat";
+	public final static String QPOLICY_FILENAME = "qpolicy-george.dat";
 	
 	public static double NUM_ITERATIONS;
 	public static double ACTUAL_ITERATION;
@@ -81,8 +81,6 @@ public class QLearning implements Serializable {
 		
 		int prevFreq = this.frequency.get(currentState);
 		this.frequency.replace(currentState, prevFreq + 1);
-		
-		if (ACTUAL_ITERATION == 999) System.out.println(qtable.toString());
 		
 		if (prevState != null && prevAction != null) {
 			double qa = qtable.get(prevState).get(prevAction);

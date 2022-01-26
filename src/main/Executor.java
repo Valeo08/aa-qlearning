@@ -28,16 +28,17 @@ public class Executor {
 		int seed = new Random().nextInt();
 				
 		// Game and level to play
-		int gameIdx  = 15;
+		int gameIdx  = 3;
 		String gameName = games[gameIdx][1];
 		String game = games[gameIdx][0];
-
+		
 		// Q-Learning things
 		// Runs the game multiple iterations for learning
 		int numIterations = 600;
 		int numLevels = 5;
 		
 		QLearning.NUM_ITERATIONS = numIterations;
+		
 		States.init();
 		
 		boolean TRAINING = false;
