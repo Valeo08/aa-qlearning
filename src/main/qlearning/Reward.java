@@ -17,7 +17,6 @@ public class Reward {
 				+ 1.0 * getGameOverScore(so)
 				+ 1.0 * getGameScore(so)
 				+ 5.0 * (1.0 - (getMeanNPCSquareDistance(so) / maxLimit));
-				//+ 3.0 * (getGeorgeSquareDistance(so) / maxLimit);
 		
 		return reward;
 	}
@@ -38,13 +37,6 @@ public class Reward {
 		return sum / count;
 	}
 	
-	/*
-	private static double getMeanImmovableSquareDistance(StateObservation so) {
-		ArrayList<Observation>[] immovablePos =  so.getImmovablePositions(so.getAvatarPosition());
-		return getMeanObservationSquareDistance(immovablePos);
-	}
-	*/
-	
 	private static double getMeanNPCSquareDistance(StateObservation so) {
 		ArrayList<Observation>[] AllNPCPos =  so.getNPCPositions(so.getAvatarPosition());
 		ArrayList<Observation> friendlyNPCPos = new ArrayList<>();
@@ -56,19 +48,6 @@ public class Reward {
 		
 		return getMeanObservationSquareDistance(friendlyNPCPos);
 	}
-	
-	/*
-	private static double getGeorgeSquareDistance(StateObservation so) {
-		ArrayList<Observation>[] AllNPCPos =  so.getNPCPositions(so.getAvatarPosition());
-
-		for (ArrayList<Observation> al : AllNPCPos)
-			for (Observation ob : al)
-				if (ob.category == 3 && ob.itype == 7)
-					return ob.sqDist;
-		
-		return 0;
-	}
-	*/
 	
 	private static double getGameScore(StateObservation so) {
 		return so.getGameScore() / 10;

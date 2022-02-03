@@ -25,7 +25,7 @@ public class Executor {
 		String[][] games = Utils.readGames(spGamesCollection);
 
 		//Game settings
-		int seed = new Random().nextInt();
+		int seed;
 				
 		// Game and level to play
 		int gameIdx  = 3;
@@ -55,14 +55,15 @@ public class Executor {
 					if (f.exists()) f.delete();
 					
 					BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-					bw.append("Iteration,Timesteps\n");
+					bw.append("Iteration,Score\n");
 					
 					for (int j = 0; j < numIterations; j++) {
 						System.out.println("Running iteration " 
 								+ (QLearning.ACTUAL_ITERATION + 1) + " on Level " + levelIndex);
 						
+						seed = new Random(System.nanoTime()).nextInt();
 						double[] results = ArcadeMachine.runOneGame(game, level, false, pTrain, null, seed, 0);
-						bw.append("" + (j+1)).append("," + results[2]).append("\n");
+						bw.append("" + (j+1)).append("," + results[1]).append("\n");
 						
 						QLearning.ACTUAL_ITERATION++;
 					}
@@ -73,8 +74,23 @@ public class Executor {
 				}
 			}
 		} else {
-			String levelTest = game.replace(gameName, gameName + "_test1");
-			ArcadeMachine.runOneGame(game, levelTest, true, pTest, null, seed, 0);
+			// Calculate an average of score over a number of tries (for validation)
+			String filename = gameName + "_test1";
+			String levelTest = game.replace(gameName, filename);
+			int tries = 1000;
+			int wins = 0;
+			
+			double mean = 0;
+			for (int i = 0; i < tries; i++) {
+				seed = new Random(System.nanoTime()).nextInt();
+				double[] results = ArcadeMachine.runOneGame(game, levelTest, false, pTest, null, seed, 0);
+				mean += results[1];
+				if (results[0] == 1) wins++;
+			}
+			mean = mean / tries;
+			System.out.println("-----------------------------------------------------------------------");
+			System.out.println("Average score with " + tries + " tries: " + mean);
+			System.out.println("The agent has won " + wins + " of " + tries + " games.");
 		}
 		
 		System.exit(0);

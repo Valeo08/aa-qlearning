@@ -17,46 +17,25 @@ public class TestAgent extends AbstractPlayer {
 	public TestAgent(StateObservation so, ElapsedCpuTimer et) {
 		// IT IS BORN
 		policy = QLearning.loadPolicy();
-		System.out.println(policy.toString());
 		
-		/*
-		int width = so.getWorldDimension().width;
-		int height = so.getWorldDimension().height;
-		double maxLimit = (width) * (height);
-		System.out.println("\n\nBLOCK SIZE: " + so.getBlockSize() + "\n");
-		System.out.println("WIDTH: " + width + "\n");
-		System.out.println("HEIGHT: " + height + "\n");
-		System.out.println("MAXLIMIT: " + maxLimit + "\n\n");
+		// DEBUG: Print the policy in use
+		// System.out.println(policy.toString());
 		
-		System.out.println("\n\nAVAILABLE ACTIONS: " + so.getAvailableActions() + "\n\n");
-		
-		for (ArrayList<Observation> a : so.getNPCPositions(so.getAvatarPosition()))
-			System.out.println(a);
-		
-		System.out.println("\n\n\nObservation Grid: \n");
-		
-		for (ArrayList<Observation>[] arr : so.getObservationGrid())
-			for (ArrayList<Observation> a : arr)
-				System.out.println(a);
-		*/
+		// DEBUG: Print the frequency of the states during the training
+		// for the current policy.
+		// System.out.println(QLearning.loadQTable().frequency.toString());
 	}
 	
 	@Override
 	public ACTIONS act(StateObservation so, ElapsedCpuTimer et) {
 		State currentState = States.checkState(so);
 		ACTIONS action = policy.get(currentState);
-		System.out.println(currentState + " ---> " + action);
+		
+		// DEBUG: Tell in which current state the agent is and
+		// which action the policy says it has to choose
+		// System.out.println(currentState + " ---> " + action);
+		
 		return action;
-		
-		/*
-		System.out.println("Tick: " + so.getGameTick());
-		System.out.println("Recompensa: " + Reward.getReward(so));
-		for (ArrayList<Observation> a : so.getNPCPositions(so.getAvatarPosition()))
-			System.out.println(a);
-		System.out.println("-----------------------------------------------------------");
-		
-		return ACTIONS.ACTION_LEFT;
-		*/
 	}
 
 }

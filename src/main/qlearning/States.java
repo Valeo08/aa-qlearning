@@ -113,7 +113,7 @@ public class States {
 		if (state == null)
 			state = checkWhereToEscape(so, escaping);
 		
-		if (state == null)
+		if (state == null || !escaping)
 			state = checkNPCToHelp(so);
 		
 		if (so.isGameOver()) state = GAME_OVER_STATE;
@@ -186,9 +186,9 @@ public class States {
 		
 		// Check simple collisions
 		if (left) newState = (escaping) ? ESCAPING_LEFT_COLLISION_STATE : LEFT_COLLISION_STATE;
-		if (right && newState != null) newState = (escaping) ? ESCAPING_RIGHT_COLLISION_STATE : RIGHT_COLLISION_STATE;
+		if (right) newState = (escaping) ? ESCAPING_RIGHT_COLLISION_STATE : RIGHT_COLLISION_STATE;
 		if (top) newState = (escaping) ? ESCAPING_TOP_COLLISION_STATE : TOP_COLLISION_STATE;
-		if (bottom && newState != null) newState = (escaping) ? ESCAPING_BOTTOM_COLLISION_STATE : BOTTOM_COLLISION_STATE;
+		if (bottom) newState = (escaping) ? ESCAPING_BOTTOM_COLLISION_STATE : BOTTOM_COLLISION_STATE;
 		
 		// Check multiple collisions
 		if (left && top) newState = (escaping) ? ESCAPING_LEFT_TOP_COLLISION_STATE : LEFT_TOP_COLLISION_STATE;

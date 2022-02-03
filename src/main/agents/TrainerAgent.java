@@ -48,7 +48,10 @@ public class TrainerAgent extends AbstractPlayer {
 		// Update the policy with the new knowledge
 		if (QLearning.ACTUAL_ITERATION == QLearning.NUM_ITERATIONS - 1) {
 			learn.printQ();
-			System.out.println(learn.frequency.toString());
+			
+			// DEBUG: Print the frequency of the states the current policy.
+			// System.out.println(learn.frequency.toString());
+			
 			learn.savePolicy();
 		}
 	}
